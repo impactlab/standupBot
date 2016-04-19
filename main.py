@@ -92,7 +92,7 @@ def get_users_name(user_id):
     sc = SlackClient(token)
     return '@' + sc.api_call('users.info',user=user_id)['user']['name']
 
-def main():
+def main(event, context):
    
     missing_users = find_users_missing_standup()
     reply_candidates = [get_users_name(user) for user in missing_users]
