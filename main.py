@@ -50,8 +50,8 @@ from base64 import b64decode
 from urllib2 import Request, urlopen, URLError, HTTPError
 
 
-ENCRYPTED_HOOK_URL = '<kmsEncyptedHookUrl>'  # Enter the base-64 encoded, encrypted key (CiphertextBlob)
-SLACK_CHANNEL = '<slackChannel>'  # Enter the Slack channel to send a message to
+ENCRYPTED_HOOK_URL = "CiBVhQSX5nYIrdq5ceR6CokUkwMNrVwB/19yzaVQE3VObRLQAQEBAgB4VYUEl+Z2CK3auXHkegqJFJMDDa1cAf9fcs2lUBN1Tm0AAACnMIGkBgkqhkiG9w0BBwaggZYwgZMCAQAwgY0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMd78Kw7APHJ8y5oCAAgEQgGD8tmHEj/KszBdqau89uWktLwp6Az3++0XOcILugA+SGUG5Oq+VC/m7opXHdQGJrr12HYrh4Cez8J6c6jC/hh+TeV8FX0szERtbweONYwRkYEjgQOK9a+is6BtVAlxDv2E="
+SLACK_CHANNEL = 'standup'  # Enter the Slack channel to send a message to
 
 HOOK_URL = "https://" + boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED_HOOK_URL))['Plaintext']
 
@@ -59,19 +59,11 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def lambda_handler(event, context):
-    logger.info("Event: " + str(event))
-    message = json.loads(event['Records'][0]['Sns']['Message'])
-    logger.info("Message: " + str(message))
-
-    alarm_name = message['AlarmName']
-    #old_state = message['OldStateValue']
-    new_state = message['NewStateValue']
-    reason = message['NewStateReason']
-
+def main():
+    
     slack_message = {
         'channel': SLACK_CHANNEL,
-        'text': "%s state is now %s: %s" % (alarm_name, new_state, reason)
+        'text': "Bot Test"
     }
 
     req = Request(HOOK_URL, json.dumps(slack_message))
@@ -83,3 +75,6 @@ def lambda_handler(event, context):
         logger.error("Request failed: %d %s", e.code, e.reason)
     except URLError as e:
         logger.error("Server connection failed: %s", e.reason)
+
+if __name__ == '__main__':
+    main()
