@@ -61,6 +61,14 @@ HOOK_URL = "https://" + boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENC
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def check_in_date_range(date):
+    date = date['ts']
+    central_current_time = datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+    range = central_current_time - datetime.datetime.fromtimestamp(float(date))
+    return range < datetime.timedelta(hours=10)
+    
+
+
 def find_users_missing_standup():
     """Find the users without a message within the last 10 hours in 
     Standup
@@ -71,8 +79,18 @@ def find_users_missing_standup():
     standup = (i for i in channels if i['name'] == SLACK_CHANNEL).next()
     members = standup['members']
     messages = sc.api_call('channels.history', channel=standup['id'])['messages']
-    central_current_time = datetime.datetime.utcnow() - datetime.timedelta(hours=5)
-    return 
+    messages_within_last_10_hours = filter(check_in_date_range, messages) 
+    users_posted = (i['user'] for i in messages_within_last_10_hours if
+                    'user' in i.keys())
+    users = []
+    [users.append(user) for user in users_posted]
+    difference = set(users).difference(members)
+    return difference
+
+def get_users_name(user_id):
+    token = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED_SLACK_TOKEN))['Plaintext']
+    sc = SlackClient(toekn)
+    sc.api_call('users.info',user=user_id)
 
 def main():
     
@@ -92,4 +110,4 @@ def main():
         logger.error("Server connection failed: %s", e.reason)
 
 if __name__ == '__main__':
-    get_todays_msg()
+    print("hello world")
