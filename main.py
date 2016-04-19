@@ -46,7 +46,9 @@ import boto3
 import json
 import logging
 import requests 
+import datetime 
 
+from slackclient import SlackClient
 from base64 import b64decode
 from urllib2 import Request, urlopen, URLError, HTTPError
 
@@ -59,11 +61,18 @@ HOOK_URL = "https://" + boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENC
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def get_todays_msg():
+def find_users_missing_standup():
+    """Find the users without a message within the last 10 hours in 
+    Standup
+    """
     token = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED_SLACK_TOKEN))['Plaintext']
-    r = requests.get(SLACK_API_ROOT + 'channels.info?' + 'channel=' + 
-                     SLACK_CHANNEL + '&token=' + token)
-    return r 
+    sc = SlackClient(token)
+    channels = sc.api_call('channels.list')['channels']
+    standup = (i for i in channels if i['name'] == SLACK_CHANNEL).next()
+    members = standup['members']
+    messages = sc.api_call('channels.history', channel=standup['id'])['messages']
+    central_current_time = datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+    return 
 
 def main():
     
@@ -83,4 +92,4 @@ def main():
         logger.error("Server connection failed: %s", e.reason)
 
 if __name__ == '__main__':
-    main()
+    get_todays_msg()
