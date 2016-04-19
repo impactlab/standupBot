@@ -89,14 +89,17 @@ def find_users_missing_standup():
 
 def get_users_name(user_id):
     token = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED_SLACK_TOKEN))['Plaintext']
-    sc = SlackClient(toekn)
-    sc.api_call('users.info',user=user_id)
+    sc = SlackClient(token)
+    return '@' + sc.api_call('users.info',user=user_id)['user']['name']
 
 def main():
-    
+   
+    missing_users = find_users_missing_standup()
+    reply_candidates = [get_users_name(user) for user in missing_users]
+    msg = 'Missing standups from ' + ', '.join(reply_candidates)
     slack_message = {
         'channel': SLACK_CHANNEL,
-        'text': "Bot Test"
+        'text': msg
     }
 
     req = Request(HOOK_URL, json.dumps(slack_message))
@@ -110,4 +113,4 @@ def main():
         logger.error("Server connection failed: %s", e.reason)
 
 if __name__ == '__main__':
-    print("hello world")
+    main()
