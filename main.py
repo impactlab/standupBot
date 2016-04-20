@@ -82,9 +82,7 @@ def find_users_missing_standup():
     messages_within_last_10_hours = filter(check_in_date_range, messages) 
     users_posted = (i['user'] for i in messages_within_last_10_hours if
                     'user' in i.keys())
-    users = []
-    [users.append(user) for user in users_posted]
-    difference = set(users).difference(members)
+    difference = set(members).difference(users_posted)
     return difference
 
 def get_users_name(user_id):
@@ -93,9 +91,9 @@ def get_users_name(user_id):
     return '@' + sc.api_call('users.info',user=user_id)['user']['name']
 
 def main(event, context):
-   
     missing_users = find_users_missing_standup()
     reply_candidates = [get_users_name(user) for user in missing_users]
+    logger.info("Reply Candidates %s", reply_candidates)
     msg = 'Missing standups from ' + ', '.join(reply_candidates)
     slack_message = {
         'channel': SLACK_CHANNEL,
