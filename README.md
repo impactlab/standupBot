@@ -7,5 +7,7 @@ This bot exists to remind those who didn't post a standup message to do so at ne
 ## Deploying 
 This code is designed to be deployed on AWS Lambda. You'll need to configure both a slack API client and incoming webhook for the bot to post to.
 
+The `deploy.sh` script zips the current working directory and sends it to an s3 bucket which is configred to run the Lambda event. 
+
 ## Testing
 You can test the bot by running `python main.py`
