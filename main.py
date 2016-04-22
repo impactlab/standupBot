@@ -45,7 +45,6 @@ from __future__ import print_function
 import boto3
 import json
 import logging
-import requests 
 import datetime 
 
 from slackclient import SlackClient
