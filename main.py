@@ -99,7 +99,7 @@ def main(event, context):
         'channel': SLACK_CHANNEL,
         'text': msg
     }
-
+    loggerinf("Preping Request")
     req = Request(HOOK_URL, json.dumps(slack_message))
     try:
         response = urlopen(req)
