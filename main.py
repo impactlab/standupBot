@@ -87,6 +87,7 @@ def find_users_missing_standup():
 def get_users_name(user_id):
     token = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED_SLACK_TOKEN))['Plaintext']
     sc = SlackClient(token)
+    logger.info("SlackClient Started")
     return '@' + sc.api_call('users.info',user=user_id)['user']['name']
 
 def main(event, context):
